@@ -1,0 +1,27 @@
+# Binaries
+plagicheck
+openkb-engine
+openkb-scanoss
+wfp-processor
+wfp_scanner
+wfp-scanner2
+
+# Test artifacts
+coverage.out
+coverage.html
+*.test
+
+# Temporary files
+*.tmp
+*.wfp.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

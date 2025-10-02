@@ -18,6 +18,12 @@ import (
 )
 
 func ParseWFPFile(filepath string) (*models.WFPData, error) {
+	return ParseWFPFileForMD5(filepath, "")
+}
+
+// ParseWFPFileForMD5 parsea un archivo WFP y extrae solo los datos del archivo con el MD5 especificado.
+// Si targetMD5 está vacío, parsea el primer archivo encontrado (comportamiento legacy).
+func ParseWFPFileForMD5(filepath string, targetMD5 string) (*models.WFPData, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open WFP file: %v", err)
@@ -30,6 +36,9 @@ func ParseWFPFile(filepath string) (*models.WFPData, error) {
 		Lines:  make([]uint32, 0),
 	}
 
+	var processingTarget bool = false
+	var foundTarget bool = false
+
 	for scanner.Scan() {
 		line := scanner.Text()
 
@@ -40,23 +49,40 @@ func ParseWFPFile(filepath string) (*models.WFPData, error) {
 				continue
 			}
 
-			// Parse MD5
-			md5Bytes, err := hex.DecodeString(parts[0])
-			if err != nil {
-				return nil, fmt.Errorf("failed to decode MD5: %v", err)
-			}
-			copy(wfpData.MD5[:], md5Bytes)
+			currentMD5 := parts[0]
 
-			// Parse total lines
-			wfpData.TotalLines, err = strconv.Atoi(parts[1])
-			if err != nil {
-				return nil, fmt.Errorf("failed to parse total lines: %v", err)
+			// Si ya encontramos y procesamos el archivo objetivo, terminar
+			if foundTarget && targetMD5 != "" {
+				break
 			}
 
-			// Parse file path
-			wfpData.FilePath = parts[2]
+			// Determinar si este es el archivo que queremos procesar
+			if targetMD5 == "" || currentMD5 == targetMD5 {
+				processingTarget = true
+				foundTarget = true
 
-		} else if strings.Contains(line, "=") {
+				// Parse MD5
+				md5Bytes, err := hex.DecodeString(parts[0])
+				if err != nil {
+					return nil, fmt.Errorf("failed to decode MD5: %v", err)
+				}
+				copy(wfpData.MD5[:], md5Bytes)
+
+				// Parse total lines
+				wfpData.TotalLines, err = strconv.Atoi(parts[1])
+				if err != nil {
+					return nil, fmt.Errorf("failed to parse total lines: %v", err)
+				}
+
+				// Parse file path
+				wfpData.FilePath = parts[2]
+			} else {
+				// Este no es el archivo objetivo, dejar de procesar hasta el siguiente file=
+				processingTarget = false
+			}
+
+		} else if strings.Contains(line, "=") && processingTarget {
+			// Solo parsear hashes si estamos procesando el archivo objetivo
 			// Parse hash lines (format: line_number=hash1,hash2,...)
 			parts := strings.Split(line, "=")
 			if len(parts) != 2 {
@@ -83,6 +109,10 @@ func ParseWFPFile(filepath string) (*models.WFPData, error) {
 
 	if err := scanner.Err(); err != nil {
 		return nil, fmt.Errorf("error reading file: %v", err)
+	}
+
+	if targetMD5 != "" && !foundTarget {
+		return nil, fmt.Errorf("file with MD5 %s not found in WFP", targetMD5)
 	}
 
 	return wfpData, nil
