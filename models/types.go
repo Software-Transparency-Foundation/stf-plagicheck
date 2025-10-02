@@ -3,7 +3,7 @@ package models
 // WFPData representa los datos parseados de un archivo WFP
 type WFPData struct {
 	MD5        [16]byte
-	MD5Hex     string   // Versión hexadecimal del MD5 para compatibilidad
+	MD5Hex     string // Versión hexadecimal del MD5 para compatibilidad
 	TotalLines int
 	FilePath   string
 	Hashes     []uint32
@@ -33,6 +33,7 @@ type MatchInfo struct {
 type Range struct {
 	From int
 	To   int
+	Oss  int
 }
 
 // ScanResult contiene los resultados completos de un scan

@@ -90,12 +90,14 @@ func mergeRanges(ranges []models.Range, tolerance int) []models.Range {
 }
 
 // formatRanges convierte un slice de ranges a string formato "15-45,120-135"
-func formatRanges(ranges []models.Range) string {
+func formatRanges(ranges []models.Range) (string, string) {
 	var parts []string
+	var oss []string
 	for _, r := range ranges {
 		parts = append(parts, fmt.Sprintf("%d-%d", r.From, r.To))
+		oss = append(oss, fmt.Sprintf("%d-%d", r.Oss, r.Oss+r.To-r.From))
 	}
-	return strings.Join(parts, ",")
+	return strings.Join(parts, ","), strings.Join(oss, ",")
 }
 
 // ReadWFPFile lee archivos WFP y extrae los datos de cada archivo
@@ -206,12 +208,11 @@ func processWFPEntry(entry *models.WFPData, wfpFilePath string) (*models.MatchRe
 
 	// Paso 5: Unificar rangos con tolerancia y generar resultado con formato code_snippet
 	mergedRanges := mergeRanges(bestMatch.Ranges, rangeMergeTolerance)
-	targetLines := formatRanges(mergedRanges)
-
+	targetLines, ossLines := formatRanges(mergedRanges)
 	result := &models.MatchResult{
 		MatchType:     "code_snippet",
 		TargetLines:   targetLines,
-		SourceLines:   targetLines, // Por ahora copiamos target_lines
+		SourceLines:   ossLines,
 		Instances:     instances,
 		ReferenceURL:  records[1],
 		ReferenceFile: records[0],

@@ -181,11 +181,13 @@ func ScanWFP(wfpData *models.WFPData, debugMode bool) (*models.ScanResult, error
 			if rangeCount > 0 && matchesSlice[i].range_from != nil {
 				rangeFromSlice := (*[1 << 30]C.int)(unsafe.Pointer(matchesSlice[i].range_from))[:rangeCount:rangeCount]
 				rangeToSlice := (*[1 << 30]C.int)(unsafe.Pointer(matchesSlice[i].range_to))[:rangeCount:rangeCount]
+				rangeOSSSlice := (*[1 << 30]C.int)(unsafe.Pointer(matchesSlice[i].oss_line))[:rangeCount:rangeCount]
 
 				for r := 0; r < rangeCount; r++ {
 					matchInfo.Ranges = append(matchInfo.Ranges, models.Range{
 						From: int(rangeFromSlice[r]),
 						To:   int(rangeToSlice[r]),
+						Oss:  int(rangeOSSSlice[r]),
 					})
 				}
 			}
