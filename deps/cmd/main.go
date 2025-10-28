@@ -37,7 +37,10 @@ func main() {
 	wfpFilePath := flag.Arg(0)
 
 	// Initialize wrapper with database name and debug mode
-	deps.SnippetWrapperInit(*ossDbName, debugMode)
+	if !deps.SnippetWrapperInit(*ossDbName, debugMode) {
+		log.Fatalf("Failed to initialize Snippet Wrapper with DB: %s", *ossDbName)
+		os.Exit(1)
+	}
 	// Parse WFP file
 	fmt.Printf("Parsing WFP file: %s\n", wfpFilePath)
 	wfpData, err := deps.ParseWFPFile(wfpFilePath)

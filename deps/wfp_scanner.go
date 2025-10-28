@@ -1,6 +1,6 @@
 package deps
 
-// #cgo CFLAGS: -I. -I../inc -I../external/inc
+// #cgo CFLAGS: -I.
 // #cgo LDFLAGS: ${SRCDIR}/libsnippets_wrapper.a -lldb -lssl -lcrypto -lz -lm -lpthread
 // #include "snippets_wrapper.h"
 // #include <stdlib.h>
@@ -118,11 +118,14 @@ func ParseWFPFileForMD5(filepath string, targetMD5 string) (*models.WFPData, err
 	return wfpData, nil
 }
 
-func SnippetWrapperInit(ossDbName string, debugMode bool) {
+func SnippetWrapperInit(ossDbName string, debugMode bool) bool {
 	cDbName := C.CString(ossDbName)
 	defer C.free(unsafe.Pointer(cDbName))
-	C.snippets_wrapper_init(cDbName, C.bool(debugMode))
-	defer C.snippets_wrapper_cleanup()
+	return bool(C.snippets_wrapper_init(cDbName, C.bool(debugMode)))
+}
+
+func SnippetWrapperCleanup() {
+	C.snippets_wrapper_cleanup()
 }
 
 func ScanWFP(wfpData *models.WFPData, debugMode bool) (*models.ScanResult, error) {

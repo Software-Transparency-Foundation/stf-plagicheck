@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
+	"github.com/schollz/progressbar/v3"
 	"scanoss.com/openkb-engine/pkg"
 )
 
@@ -16,12 +18,41 @@ var (
 	commit  string = "unknown"
 )
 
+// progressWriter captures progress messages and updates a progress bar
+type progressWriter struct {
+	bar *progressbar.ProgressBar
+}
+
+func (pw *progressWriter) Write(p []byte) (n int, err error) {
+	// Parse "progress:N/M" messages
+	msg := strings.TrimSpace(string(p))
+	if strings.HasPrefix(msg, "progress:") {
+		parts := strings.Split(strings.TrimPrefix(msg, "progress:"), "/")
+		if len(parts) == 2 {
+			current, err1 := strconv.Atoi(parts[0])
+			total, err2 := strconv.Atoi(parts[1])
+			if err1 == nil && err2 == nil {
+				if pw.bar == nil {
+					pw.bar = progressbar.Default(int64(total))
+				}
+				pw.bar.Set(current)
+			}
+		}
+	}
+	return len(p), nil
+}
+
 func main() {
 	generateMode := flag.Bool("fp", false, "Generate WFP from file or directory (output only, no scan)")
 	outputFile := flag.String("output", "", "Output file for generated WFP (optional, default: stdout)")
 	minHits := flag.Int("min-hits", 3, "Minimum number of hits required for valid snippet match (default: 3)")
+	numThreads := flag.Int("T", 3, "Number of parallel threads for processing files (default: 3)")
+	debugMode := flag.Bool("d", false, "Enable debug mode (show detailed processing information)")
 	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
+
+	// Set debug mode
+	pkg.SetDebugMode(*debugMode)
 
 	if *showVersion {
 		fmt.Printf("plagicheck version %s (commit: %s)\n", version, commit)
@@ -29,7 +60,7 @@ func main() {
 	}
 
 	if flag.NArg() != 1 {
-		fmt.Fprintf(os.Stderr, "Usage: %s [-fp] [--output <file>] [--min-hits <N>] <file|directory|file.wfp>\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s [-fp] [--output <file>] [--min-hits <N>] [-T <threads>] [-d] <file|directory|file.wfp>\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "       %s --version\n", os.Args[0])
 		os.Exit(1)
 	}
@@ -84,7 +115,13 @@ func main() {
 		// Not a .wfp file, generate temporary WFP
 		var wfp string
 		if fileInfo.IsDir() {
-			wfp, err = pkg.GenerateWFPFromDirectory(path)
+			fmt.Fprintf(os.Stderr, "Generating WFP...\n")
+			progress := &progressWriter{}
+			wfp, err = pkg.GenerateWFPFromDirectoryWithProgress(path, progress)
+			if progress.bar != nil {
+				progress.bar.Finish()
+				fmt.Fprintln(os.Stderr)
+			}
 		} else {
 			wfp, err = pkg.GenerateWFPFromFile(path)
 		}
@@ -114,7 +151,13 @@ func main() {
 	}
 
 	// Scan WFP file
-	results, err := pkg.ScanWFPFile(kbName, wfpFile, *minHits)
+	fmt.Fprintf(os.Stderr, "Scanning files with %d threads...\n", *numThreads)
+	progress := &progressWriter{}
+	results, err := pkg.ScanWFPFile(kbName, wfpFile, *minHits, progress, *numThreads)
+	if progress.bar != nil {
+		progress.bar.Finish()
+		fmt.Fprintln(os.Stderr)
+	}
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error scanning WFP: %v\n", err)
 		os.Exit(1)

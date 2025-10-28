@@ -1,3 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+/*
+ * go-wrapper/snippets_wrapper.h
+ *
+ * Go wrapper header for SCANOSS snippet scanning
+ *
+ * Copyright (C) 2018-2021 SCANOSS.COM
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #ifndef SNIPPETS_WRAPPER_H
 #define SNIPPETS_WRAPPER_H
 
@@ -42,7 +64,7 @@ typedef struct wrapper_scan_result {
 
 wrapper_scan_result_t* snippets_wrapper_scan(wrapper_scan_input_t *input);
 void snippets_wrapper_free_result(wrapper_scan_result_t *result);
-void snippets_wrapper_init(const char *oss_db_name, bool enable_debug);
+bool snippets_wrapper_init(const char *oss_db_name, bool enable_debug);
 void snippets_wrapper_cleanup();
 
 #endif
