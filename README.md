@@ -4,7 +4,7 @@
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/scanoss/osspenkb-engine)
 
-A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the SCANOSS Open Knowledge Base to identify potential code reuse.
+A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the STF Open Knowledge Base to identify potential code reuse.
 
 ## Features
 
@@ -279,6 +279,7 @@ For partial matches, Plagicheck:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
+Contributions to the dataset are also accepted in this repository.
 
 ## License
 
