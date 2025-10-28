@@ -5,17 +5,17 @@
 
 package models
 
-// WFPData representa los datos parseados de un archivo WFP
+// WFPData represents the parsed data from a WFP file
 type WFPData struct {
 	MD5        [16]byte
-	MD5Hex     string // Versión hexadecimal del MD5 para compatibilidad
+	MD5Hex     string // Hexadecimal version of MD5 for compatibility
 	TotalLines int
 	FilePath   string
 	Hashes     []uint32
 	Lines      []uint32
 }
 
-// MatchResult representa un resultado de coincidencia (para salida JSON)
+// MatchResult represents a match result (for JSON output)
 type MatchResult struct {
 	MatchType     string  `json:"match_type"`
 	TargetLines   string  `json:"target_lines,omitempty"`
@@ -23,25 +23,25 @@ type MatchResult struct {
 	Instances     int     `json:"instances"`
 	ReferenceURL  string  `json:"reference_url"`
 	ReferenceFile string  `json:"reference_file"`
-	Hits          int     `json:"-"` // Para uso interno (no se exporta en JSON)
-	Ranges        []Range `json:"-"` // Para uso interno (no se exporta en JSON)
+	Hits          int     `json:"-"` // For internal use (not exported in JSON)
+	Ranges        []Range `json:"-"` // For internal use (not exported in JSON)
 }
 
-// MatchInfo contiene información sobre una coincidencia individual (uso interno)
+// MatchInfo contains information about an individual match (internal use)
 type MatchInfo struct {
 	FileMD5Hex string
 	Hits       int
 	Ranges     []Range
 }
 
-// Range representa un rango de líneas en una coincidencia
+// Range represents a line range in a match
 type Range struct {
 	From int
 	To   int
 	Oss  int
 }
 
-// ScanResult contiene los resultados completos de un scan
+// ScanResult contains the complete results of a scan
 type ScanResult struct {
 	MatchType  MatchType
 	MatchCount int
@@ -49,7 +49,7 @@ type ScanResult struct {
 	ErrorMsg   string
 }
 
-// MatchType representa el tipo de coincidencia encontrada
+// MatchType represents the type of match found
 type MatchType int
 
 const (
@@ -59,7 +59,7 @@ const (
 	MatchBinary  MatchType = 3
 )
 
-// String devuelve una representación legible del MatchType
+// String returns a human-readable representation of the MatchType
 func (m MatchType) String() string {
 	switch m {
 	case MatchFile:

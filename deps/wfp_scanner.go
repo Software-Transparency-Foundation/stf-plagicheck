@@ -43,8 +43,8 @@ func ParseWFPFile(filepath string) (*models.WFPData, error) {
 	return ParseWFPFileForMD5(filepath, "")
 }
 
-// ParseWFPFileForMD5 parsea un archivo WFP y extrae solo los datos del archivo con el MD5 especificado.
-// Si targetMD5 está vacío, parsea el primer archivo encontrado (comportamiento legacy).
+// ParseWFPFileForMD5 parses a WFP file and extracts only the data from the file with the specified MD5.
+// If targetMD5 is empty, it parses the first file found (legacy behavior).
 func ParseWFPFileForMD5(filepath string, targetMD5 string) (*models.WFPData, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
@@ -73,12 +73,12 @@ func ParseWFPFileForMD5(filepath string, targetMD5 string) (*models.WFPData, err
 
 			currentMD5 := parts[0]
 
-			// Si ya encontramos y procesamos el archivo objetivo, terminar
+			// If we already found and processed the target file, stop
 			if foundTarget && targetMD5 != "" {
 				break
 			}
 
-			// Determinar si este es el archivo que queremos procesar
+			// Determine if this is the file we want to process
 			if targetMD5 == "" || currentMD5 == targetMD5 {
 				processingTarget = true
 				foundTarget = true
@@ -99,12 +99,12 @@ func ParseWFPFileForMD5(filepath string, targetMD5 string) (*models.WFPData, err
 				// Parse file path
 				wfpData.FilePath = parts[2]
 			} else {
-				// Este no es el archivo objetivo, dejar de procesar hasta el siguiente file=
+				// This is not the target file, stop processing until the next file=
 				processingTarget = false
 			}
 
 		} else if strings.Contains(line, "=") && processingTarget {
-			// Solo parsear hashes si estamos procesando el archivo objetivo
+			// Only parse hashes if we are processing the target file
 			// Parse hash lines (format: line_number=hash1,hash2,...)
 			parts := strings.Split(line, "=")
 			if len(parts) != 2 {

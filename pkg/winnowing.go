@@ -115,7 +115,7 @@ func fingerprint(filePath string) string {
 	result := ""
 	f, err := os.ReadFile(filePath)
 	if err != nil {
-		//	fmt.Println("No se pudo abrir el archivo")
+		//	fmt.Println("Could not open the file")
 		return ""
 	}
 
