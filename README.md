@@ -1,18 +1,69 @@
 # Plagicheck
 
-A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching.
+A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the SCANOSS Open Knowledge Base to identify potential code reuse.
 
 ## Features
 
-- **WFP Generation**: Generate winnowing fingerprints from files or directories
-- **File Matching**: Detect exact file matches using MD5 hashing
-- **Snippet Matching**: Identify code snippets with configurable hit thresholds
-- **Flexible Scanning**: Scan .wfp files, individual files, or entire directories
-- **Smart Filtering**: Filter out single-line matches and apply minimum hit requirements
+- Full file matching detection
+- Code snippet matching with line range identification
+- Support for individual files, directories, and WFP files
+- JSON output format for easy integration
+- Debug mode for detailed processing information
 
 ## Installation
 
-### From Source
+### Prerequisites
+
+**SCANOSS LDB** - The LDB binary and shared library (libldb.so) must be installed on your system. For detailed installation instructions, please refer to:
+https://github.com/scanoss/ldb/blob/master/README.md
+
+### Open Knowledge Base Dataset
+
+To scan code, the **osskbopen** dataset must be available under the directory `/var/lib/ldb/`.
+
+You can download the dataset from:
+- FTP: ftp://osskb.st.foundation
+- Web: http://osskb.st.foundation
+
+**Note:** The total disk space required is approximately 1.2TB.
+
+### Verifying LDB Installation
+
+Once you have downloaded the knowledge base, verify the LDB directory structure:
+
+```bash
+ls -l /var/lib/ldb/
+```
+
+Expected output:
+```
+drwxr-xr-x  4 user user 4.0K Oct 27 21:01 osskbopen
+```
+
+Ensure the LDB binary is available in your PATH:
+
+```bash
+which ldb
+```
+
+Expected output:
+```
+/usr/bin/ldb
+```
+
+Test LDB functionality with the following command:
+
+```bash
+echo "select from osskbopen/file-url key 00fffff25afaa0d78ff1c6f41ba7f965 csv hex 16" | ldb
+```
+
+Expected output:
+```
+00fffff25afaa0d78ff1c6f41ba7f965,Source/AccelByteUe4Sdk/Private/Core/AccelByteServerCredentials.cpp,https://github.com/accelbyte/accelbyte-unreal-sdk-plugin/archive/24.3.0.zip,52
+```
+
+If you see this result, you are ready to proceed with building Plagicheck.
+### Building Plagicheck from Source
 
 ```bash
 make build
@@ -26,78 +77,107 @@ make install
 
 ## Usage
 
-### Scan a file or directory
+### Scan a File or Directory
 
+Scan a single file (WFP is generated automatically):
 ```bash
-# Scan a file directly (generates WFP automatically)
 plagicheck myfile.go
+```
 
-# Scan a directory
+Scan an entire directory:
+```bash
 plagicheck ./src
+```
 
-# Scan a WFP file
+Scan a pre-generated WFP file:
+```bash
 plagicheck myproject.wfp
 ```
 
-### Generate WFP only
-
+Use multiple threads for faster processing:
 ```bash
-# Generate WFP and output to stdout
-plagicheck -fp myfile.go
+plagicheck -T 8 ./src
+```
 
-# Generate WFP and save to file
+Enable debug mode for detailed information:
+```bash
+plagicheck -d myfile.go
+```
+
+### Generate WFP Only
+
+Generate WFP and output to stdout:
+```bash
+plagicheck -fp myfile.go
+```
+
+Generate WFP and save to file:
+```bash
 plagicheck -fp --output myproject.wfp ./src
 ```
 
-### Configure hit threshold
+### Configure Hit Threshold
 
+Require at least 10 hits for valid snippet match:
 ```bash
-# Require at least 10 hits for valid snippet match
 plagicheck --min-hits 10 myfile.wfp
 ```
 
-### Version information
+### Version Information
 
+Display version and commit information:
 ```bash
 plagicheck --version
 ```
 
 ## Command Line Options
 
-- `-fp`: Generate WFP from file or directory (output only, no scan)
-- `--output <file>`: Output file for generated WFP (default: stdout)
-- `--min-hits <N>`: Minimum number of hits required for valid snippet match (default: 3)
-- `--version`: Show version information
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-fp` | Generate WFP from file or directory (output only, no scan) | - |
+| `--output <file>` | Output file for generated WFP | stdout |
+| `--min-hits <N>` | Minimum number of hits required for valid snippet match | 3 |
+| `-T <threads>` | Number of parallel threads for processing files | 3 |
+| `-d` | Enable debug mode (show detailed processing information) | false |
+| `--version` | Show version information | - |
 
-## Match Types
+## Output Format
 
-### Full File Match
-Exact file match found in the knowledge base:
+Plagicheck outputs results in JSON format, making it easy to integrate with other tools and workflows.
+
+### Match Types
+
+#### Full File Match
+An exact file match found in the knowledge base:
 ```json
 {
   "match_type": "full_file",
   "instances": 52,
-  "reference_url": "https://github.com/...",
-  "reference_file": "path/to/file.cpp"
+  "reference_url": "https://github.com/accelbyte/accelbyte-unreal-sdk-plugin/archive/24.3.0.zip",
+  "reference_file": "Source/AccelByteUe4Sdk/Private/Core/AccelByteServerCredentials.cpp"
 }
 ```
 
-### Code Snippet Match
-Partial code match with line ranges:
+#### Code Snippet Match
+A partial code match with line ranges indicating where the matching code is located:
 ```json
 {
   "match_type": "code_snippet",
   "target_lines": "52-80",
-  "source_lines": "42-70",
+  "ref_file_lines": "42-70",
   "instances": 52,
-  "reference_url": "https://github.com/...",
-  "reference_file": "path/to/file.cpp",
-  "hits": 15
+  "reference_url": "https://github.com/example/repository",
+  "reference_file": "path/to/file.cpp"
 }
 ```
 
-### No Match
-No match found:
+**Fields explanation:**
+- `target_lines`: Line range in your scanned file where the match was found
+- `ref_file_lines`: Line range in the reference file that matches your code
+- `instances`: Number of times this file appears in the knowledge base
+
+#### No Match
+No match found in the knowledge base:
 ```json
 {
   "match_type": "no_match",
@@ -157,13 +237,40 @@ make clean
 └── README.md      # This file
 ```
 
-## Validation Rules
+## How It Works
 
-### Snippet Matches
-- Must have at least `--min-hits` number of hits (default: 3)
-- Ranges must span more than one line (single-line matches are filtered)
-- Ranges are merged if separated by less than 3 lines
+### Winnowing Fingerprints (WFP)
+
+Plagicheck uses the winnowing algorithm to generate fingerprints of source code files. This technique:
+
+1. **Normalizes the code** - Removes whitespace and comments to focus on code structure.
+2. **Generates hashes** - Creates hash values for sliding windows of code.
+3. **Selects fingerprints** - Uses the winnowing algorithm to select a minimal set of representative hashes.
+Please refer to https://github.com/scanoss/wfp for more details.
+
+4. **Compares against database** - Matches fingerprints against the SCANOSS Open Knowledge Base.
+
+### Matching Logic
+
+#### Full File Matching
+When the MD5 hash of the entire file matches a file in the knowledge base, a full file match is reported.
+
+#### Snippet Matching
+For partial matches, Plagicheck:
+- Identifies matching hash sequences between your code and the knowledge base
+- Calculates line ranges where matches occur
+- Merges nearby matches (separated by less than 3 lines)
+- Filters out single-line matches
+- Validates matches have at least the minimum number of hits (configurable with `--min-hits`)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests.
 
 ## License
 
-Copyright (c) 2024
+**SPDX-License-Identifier:** GPL-2.0
+
+**Copyright (C) 2025 Fundación Para La Transparencia del Software - STF**
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.

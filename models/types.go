@@ -1,3 +1,8 @@
+// SPDX-FileCopyrightText: Copyright (C) 2025 Fundación Para La Transparencia del Software - STF
+// SPDX-FileCopyrightText: 2025 Mariano Scasso <info@st.foundation>
+//
+// SPDX-License-Identifier: GPL-2.0
+
 package models
 
 // WFPData representa los datos parseados de un archivo WFP
@@ -14,7 +19,7 @@ type WFPData struct {
 type MatchResult struct {
 	MatchType     string  `json:"match_type"`
 	TargetLines   string  `json:"target_lines,omitempty"`
-	SourceLines   string  `json:"source_lines,omitempty"`
+	SourceLines   string  `json:"ref_file_lines,omitempty"`
 	Instances     int     `json:"instances"`
 	ReferenceURL  string  `json:"reference_url"`
 	ReferenceFile string  `json:"reference_file"`
