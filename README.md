@@ -1,5 +1,9 @@
 # Plagicheck
 
+[![Go Version](https://img.shields.io/badge/Go-1.22%2B-00ADD8?style=flat&logo=go)](https://golang.org)
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/scanoss/osspenkb-engine)
+
 A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the SCANOSS Open Knowledge Base to identify potential code reuse.
 
 ## Features
@@ -14,8 +18,17 @@ A high-performance code plagiarism detection tool using winnowing fingerprints (
 
 ### Prerequisites
 
-**SCANOSS LDB** - The LDB binary and shared library (libldb.so) must be installed on your system. For detailed installation instructions, please refer to:
+#### SCANOSS LDB
+The LDB binary and shared library (libldb.so) must be installed on your system. For detailed installation instructions, please refer to:
 https://github.com/scanoss/ldb/blob/master/README.md
+
+#### SCANOSS Snippet Library
+This project requires the `libsnippets_wrapper.a` static library for snippet scanning functionality. The library is included in the `deps/` directory but can also be built from source.
+
+To build the library from source, follow the instructions at:
+https://github.com/scanoss/engine/blob/main/go-wrapper/README.md
+
+**Note:** The pre-compiled library in `deps/libsnippets_wrapper.a` is provided for convenience but may need to be rebuilt for your specific platform.
 
 ### Open Knowledge Base Dataset
 
