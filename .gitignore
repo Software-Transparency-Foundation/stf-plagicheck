@@ -1,0 +1,23 @@
+# Binaries
+plagicheck
+wfp-processor
+
+# Test artifacts
+coverage.out
+coverage.html
+*.test
+
+# Temporary files
+*.tmp
+*.wfp.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
