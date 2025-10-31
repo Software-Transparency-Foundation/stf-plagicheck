@@ -4,7 +4,7 @@
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/Software-Transparency-Foundation/stf-plagicheck)
 
-A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the STF Open Knowledge Base to identify potential code reuse.
+A high-performance code plagiarism detection tool using winnowing fingerprints (WFP) and snippet matching techniques. Plagicheck scans source code files and directories against the osskb-core-open-dataset to identify potential code reuse.
 
 ## Features
 
@@ -32,7 +32,7 @@ https://github.com/scanoss/engine/blob/main/go-wrapper/README.md
 
 ### Open Knowledge Base Dataset
 
-To scan code, the **osskbopen** dataset must be available under the directory `/var/lib/ldb/`.
+To scan code, the **osskb-core-open-dataset** dataset must be available under the directory `/var/lib/ldb/`.
 
 You can download the dataset from:
 - FTP: ftp://osskb.st.foundation
