@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	kbName  string = "osskbopen"
+	kbName  string = "osskb-core"
 	version string = "dev"
 	commit  string = "unknown"
 )

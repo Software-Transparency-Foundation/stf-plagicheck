@@ -50,7 +50,7 @@ ls -l /var/lib/ldb/
 
 Expected output:
 ```
-drwxr-xr-x  4 user user 4.0K Oct 27 21:01 osskbopen
+drwxr-xr-x  4 user user 4.0K Oct 27 21:01 osskb-core
 ```
 
 Ensure the LDB binary is available in your PATH:
@@ -67,7 +67,7 @@ Expected output:
 Test LDB functionality with the following command:
 
 ```bash
-echo "select from osskbopen/file-url key 00fffff25afaa0d78ff1c6f41ba7f965 csv hex 16" | ldb
+echo "select from osskb-core/file-url key 00fffff25afaa0d78ff1c6f41ba7f965 csv hex 16" | ldb
 ```
 
 Expected output:
