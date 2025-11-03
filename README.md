@@ -283,7 +283,7 @@ Contributions to the dataset are also accepted in this repository.
 
 ## License
 
-**SPDX-License-Identifier:** GPL-2.0
+**SPDX-License-Identifier:**GPL-2.0-only
 
 **Copyright (C) 2025 Fundación Para La Transparencia del Software - STF**
 

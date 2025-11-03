@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: Copyright (C) 2025 Fundación Para La Transparencia del Software - STF
 // SPDX-FileCopyrightText: 2025 Mariano Scasso <info@st.foundation>
 //
-// SPDX-License-Identifier: GPL-2.0
+// SPDX-License-Identifier:GPL-2.0-only
 
 package main
 

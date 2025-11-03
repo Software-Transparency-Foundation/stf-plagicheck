@@ -33,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 - Complete README with installation and usage instructions
 - Contributing guidelines
-- GPL-2.0 license
+-GPL-2.0-only license
 - Code examples and test files
 - Makefile with build automation
 
